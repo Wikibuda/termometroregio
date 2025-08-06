@@ -15,7 +15,10 @@
             <div class="mm-thermometer-header">
                 <div class="mm-location-info">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span>Monterrey, NL - Área Metropolitana</span>
+                    <div>
+                        <span>Monterrey, NL - Área Metropolitana</span>
+                        <div class="mm-current-date" id="mm-current-date">Cargando fecha...</div>
+                    </div>
                 </div>
                 <div class="mm-last-updated" id="mm-last-updated">Actualizando...</div>
             </div>
@@ -32,8 +35,8 @@
                             <span>Humedad: <span id="mm-humidity">--</span>%</span>
                         </div>
                         <div class="mm-detail">
-                            <i class="fas fa-wind"></i>
-                            <span>Viento: <span id="mm-wind">--</span> km/h</span>
+                            <i class="fas fa-mountain"></i>
+                            <span>Altitud: <span id="mm-altitude">--</span> msnm</span>
                         </div>
                     </div>
                 </div>
@@ -51,6 +54,10 @@
                         <div class="mm-mark-line"></div>
                         <div class="mm-mark-label">24°C</div>
                     </div>
+                    <div class="mm-scale-mark" style="left: 22%;">
+                        <div class="mm-mark-line"></div>
+                        <div class="mm-mark-label">28°C</div>
+                    </div>
                     <div class="mm-scale-mark" style="left: 33%;">
                         <div class="mm-mark-line"></div>
                         <div class="mm-mark-label">30°C</div>
@@ -67,6 +74,11 @@
                     <!-- Zona óptima (24-28°C) -->
                     <div class="mm-optimal-zone" style="left: 0%; width: 22%;"></div>
                     
+                    <!-- Leyenda de zona óptima -->
+                    <div class="mm-optimal-zone-label" style="left: 11%;">
+                        <span class="mm-optimal-zone-text">Zona óptima (24-28°C)</span>
+                    </div>
+                    
                     <!-- Indicador de temperatura actual -->
                     <div class="mm-temperature-indicator" id="mm-temperature-indicator">
                         <div class="mm-indicator-arrow"></div>
@@ -80,11 +92,11 @@
                 <div class="mm-recommendation-grid">
                     <div class="mm-recommendation-card">
                         <div class="mm-rec-icon">
-                            <i class="fas fa-seedling"></i>
+                            <i class="fas fa-bread-slice"></i>
                         </div>
-                        <div class="mm-rec-title">Inoculante</div>
-                        <div class="mm-rec-value" id="mm-rec-inoculante">--</div>
-                        <div class="mm-rec-desc" id="mm-rec-inoculante-desc">Porcentaje ideal para hoy</div>
+                        <div class="mm-rec-title">Masa Madre</div>
+                        <div class="mm-rec-value" id="mm-rec-masa-madre">--</div>
+                        <div class="mm-rec-desc" id="mm-rec-masa-madre-desc">Porcentaje ideal para hoy</div>
                     </div>
                     <div class="mm-recommendation-card">
                         <div class="mm-rec-icon">

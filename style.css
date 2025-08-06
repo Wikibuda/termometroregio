@@ -1,4 +1,4 @@
-/* ===== TERMÓMETRO DE FERMENTACIÓN REGIO - ESTILOS ===== */
+/* ===== TERMÓMETRO DE FERMENTACIÓN REGIO - ESTILOS COMPLETOS Y CORREGIDOS ===== */
 
 :root {
   --border-radius: 12px;
@@ -8,6 +8,7 @@
   --color-verde-oscuro: #4a6a4e;
   --color-verde-medio: #5a7a5e;
   --color-verde-claro: #6a8a6e;
+  --color-rojo: #d84315;
   --color-tips: #f0f7f0;
   --gradiente-verde: linear-gradient(135deg, #5a7a5e 0%, #4a6a4e 100%);
   --gradiente-acento: linear-gradient(135deg, #716a56 0%, #5a5a4a 100%);
@@ -81,6 +82,14 @@
   font-weight: 500;
 }
 
+/* Fecha actual */
+.mm-current-date {
+  font-size: 14px;
+  color: var(--color-verde-medio);
+  margin-top: 3px;
+  font-weight: normal;
+}
+
 /* Datos climáticos */
 .mm-weather-data {
   display: flex;
@@ -151,14 +160,15 @@
   line-height: 1.5;
 }
 
-/* Termómetro visual */
+/* Termómetro visual - CORRECCIONES CRÍTICAS APLICADAS */
 .mm-thermometer-visual {
   margin: 25px 0;
+  position: relative;
 }
 
 .mm-thermometer-scale {
   position: relative;
-  height: 40px;
+  height: 45px;
   width: 100%;
   background: #f8f9fa;
   border-radius: 20px;
@@ -174,17 +184,45 @@
 
 .mm-mark-line {
   width: 1px;
-  height: 15px;
-  background: #ddd;
+  height: 18px;
+  background: var(--color-verde-medio);
+  opacity: 0.7;
 }
 
+/* Números de la escala - CORRECCIONES CRÍTICAS APLICADAS */
 .mm-mark-label {
   position: absolute;
-  top: 20px;
+  top: 22px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
-  color: #666;
+  font-size: 14px;
+  color: var(--color-texto);
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+/* Números destacados de la zona óptima (24°C y 28°C) - NUEVA SECCIÓN CRÍTICA */
+.mm-scale-mark:nth-child(1) .mm-mark-label {
+  font-size: 15px !important;
+  font-weight: bold !important;
+  color: var(--color-verde-oscuro) !important;
+  background: rgba(90, 170, 90, 0.15) !important;
+  padding: 2px 8px !important;
+  border-radius: 10px !important;
+  z-index: 3 !important;
+  left: 52% !important;
+}
+
+.mm-scale-mark:nth-child(2) .mm-mark-label {
+  font-size: 15px !important;
+  font-weight: bold !important;
+  color: var(--color-verde-oscuro) !important;
+  background: rgba(90, 170, 90, 0.15) !important;
+  padding: 2px 8px !important;
+  border-radius: 10px !important;
+  z-index: 3 !important;
+  left: 50% !important;
 }
 
 /* Zona óptima (24-28°C) */
@@ -194,26 +232,48 @@
   left: 0%;
   width: 22%;
   height: 100%;
-  background: rgba(90, 170, 90, 0.2);
+  background: rgba(90, 170, 90, 0.25);
   z-index: 1;
+  border-radius: 20px 0 0 20px;
 }
 
-/* Indicador de temperatura */
+/* Leyenda de zona óptima - VISIBLE Y NO INTERFERENTE */
+.mm-optimal-zone-label {
+  position: absolute;
+  bottom: -28px;
+  transform: translateX(-50%);
+  z-index: 10 !important;
+  white-space: nowrap;
+}
+
+.mm-optimal-zone-text {
+  font-size: 13px !important;
+  color: var(--color-verde-oscuro) !important;
+  font-weight: bold !important;
+  background: rgba(90, 170, 90, 0.15) !important;
+  padding: 3px 8px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  display: inline-block;
+}
+
+/* Indicador de temperatura - CORRECCIÓN DE POSICIÓN VERTICAL */
 .mm-temperature-indicator {
   position: absolute;
-  top: -15px;
+  top: -25px !important; /* CORRECCIÓN CRÍTICA: subido para centrar visualmente */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 5;
   text-align: center;
+  width: auto;
 }
 
 .mm-indicator-arrow {
   width: 0;
   height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 15px solid var(--color-verde-claro);
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 18px solid var(--color-verde-claro);
   margin: 0 auto;
 }
 
@@ -221,10 +281,13 @@
   background: var(--color-verde-claro);
   color: white;
   border-radius: 15px;
-  padding: 3px 10px;
+  padding: 5px 12px;
   font-weight: bold;
-  font-size: 14px;
-  margin-top: 3px;
+  font-size: 16px;
+  margin-top: 5px;
+  min-width: 70px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Recomendaciones */
@@ -310,6 +373,34 @@
   margin-top: 20px;
 }
 
+#mm-refresh-button {
+  background: var(--gradiente-verde);
+  color: white;
+  border: none;
+  padding: 16px 30px;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+  margin: 20px auto;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  box-shadow: 0 6px 15px rgba(90, 122, 94, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Quattrocento Sans', sans-serif;
+}
+
+#mm-refresh-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(90, 122, 94, 0.4);
+}
+
 /* Niveles de dificultad */
 .level-low {
   color: #2e7d32;
@@ -328,14 +419,19 @@
 }
 
 .level-high {
-  color: #d84315;
+  color: var(--color-rojo);
 }
 
 .level-extreme {
   color: #b71c1c;
 }
 
-/* Responsive */
+/* Nivel NO óptimo en rojo */
+.level-not-optimal {
+  color: var(--color-rojo) !important;
+}
+
+/* ===== MEDIA QUERIES - CORREGIDAS Y OPTIMIZADAS ===== */
 @media (max-width: 767px) {
   .mm-weather-data {
     flex-direction: column;
@@ -351,5 +447,52 @@
   
   .mm-fermentation-level {
     min-width: 100%;
+  }
+  
+  /* Ajustes específicos para móviles */
+  .mm-thermometer-scale {
+    height: 42px;
+  }
+  
+  .mm-mark-label {
+    font-size: 15px;
+    top: 20px;
+  }
+  
+  .mm-temperature-indicator {
+    top: -22px !important; /* Ajuste específico para móviles */
+  }
+  
+  .mm-indicator-value {
+    font-size: 15px;
+    padding: 4px 10px;
+  }
+  
+  .mm-scale-mark:nth-child(1) .mm-mark-label {
+    left: 52% !important;
+  }
+  
+  .mm-scale-mark:nth-child(2) .mm-mark-label {
+    left: 50% !important;
+  }
+  
+  .mm-optimal-zone-label {
+    bottom: -26px !important;
+  }
+  
+  .mm-optimal-zone-text {
+    font-size: 12px !important;
+    padding: 2px 6px !important;
+  }
+}
+
+/* Asegurar que los estilos se mantengan consistentes en todos los tamaños */
+@media (min-width: 768px) {
+  .mm-thermometer-container:before {
+    background: var(--gradiente-verde);
+  }
+  
+  #mm-refresh-button {
+    background: var(--gradiente-verde);
   }
 }
