@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Configuración de Monterrey
   const MONTERREY_ALTITUDE = 540; // metros sobre el nivel del mar
   
+  // Rango de temperatura para el termómetro
+  const MIN_TEMP = 0;
+  const MAX_TEMP = 42;
+  const OPTIMAL_MIN = 24;
+  const OPTIMAL_MAX = 28;
+  
   // Función para actualizar la fecha actual
   function updateCurrentDate() {
     const now = new Date();
@@ -72,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     adjustOptimalZoneLabel(data.temperature);
   }
   
-  // Función para ajustar la posición de la leyenda de la zona óptima
+  // Función para ajustar la posición de la leyenda
   function adjustOptimalZoneLabel(temperature) {
     const labelEl = document.querySelector('.mm-optimal-zone-label');
     if (!labelEl) return;
@@ -84,29 +90,27 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Si está en el primer 30% de la zona, mover a la derecha
       if (positionInZone < 0.3) {
-        labelEl.style.left = '15%';
+        labelEl.style.left = '45%';
       } 
       // Si está en el último 30% de la zona, mover a la izquierda
       else if (positionInZone > 0.7) {
-        labelEl.style.left = '7%';
+        labelEl.style.left = '55%';
       }
       // Si está en el centro, usar posición predeterminada
       else {
-        labelEl.style.left = '11%';
+        labelEl.style.left = '50%';
       }
     } 
     // Si no está en la zona óptima, usar posición predeterminada
     else {
-      labelEl.style.left = '11%';
+      labelEl.style.left = '50%';
     }
   }
   
-  // Función para actualizar el termómetro visual
+  // Función para actualizar el termómetro visual con gradiente verde único
   function updateThermometer(temperature) {
-    // Calcular posición del indicador (rango 24-42°C)
-    const minTemp = 24;
-    const maxTemp = 42;
-    const position = ((temperature - minTemp) / (maxTemp - minTemp)) * 100;
+    // Calcular posición del indicador (rango 0-42°C)
+    const position = ((temperature - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100;
     
     // Asegurar que la posición esté dentro del rango 0-100%
     const clampedPosition = Math.max(0, Math.min(100, position));
@@ -154,13 +158,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Definir niveles basados en temperatura
     if (temperature < 20) {
-      level = "EXTREMO";
-      description = "Temperatura muy baja para una fermentación óptima. Tu masa madre estará inactiva y requerirá más tiempo y técnicas especiales.";
-      className = "level-extreme";
-    } else if (temperature < 24) {
       level = "ALTO";
       description = "Temperatura baja para fermentación. Tu masa madre trabajará lentamente, necesitando más tiempo y un mayor porcentaje de inoculante.";
       className = "level-high";
+    } else if (temperature < 24) {
+      level = "MEDIO-BAJO";
+      description = "Temperatura ligeramente baja. Tu masa madre fermentará más lento de lo normal.";
+      className = "level-medium-low";
     } else if (temperature < 28) {
       level = "BAJO";
       description = "Condiciones ideales para fermentación de masa madre. Este es el rango óptimo para un pan con buen sabor y textura.";
@@ -169,21 +173,17 @@ document.addEventListener('DOMContentLoaded', function() {
       level = "MEDIO-ALTO";
       description = "Temperatura elevada. Tu masa madre fermentará más rápido de lo normal, requiriendo ajustes en los tiempos y porcentajes.";
       className = "level-medium-high";
-    } else if (temperature < 36) {
+    } else {
       level = "ALTO";
       description = "Temperatura alta. La fermentación será muy rápida, con riesgo de sobrefermentación y sabor excesivamente ácido.";
       className = "level-high";
-    } else {
-      level = "EXTREMO";
-      description = "Temperatura extremadamente alta. Tu masa madre fermentará demasiado rápido, requiriendo técnicas especiales para controlar el proceso.";
-      className = "level-extreme";
     }
     
     // Actualizar visualización del nivel
     if (levelValueEl) {
       levelValueEl.textContent = level;
       
-      // Si no es óptimo (fuera de 24-28°C), usar color rojo
+      // Si no es óptimo (fuera de 24-28°C), usar color verde oscuro
       if (temperature < 24 || temperature >= 28) {
         levelValueEl.className = "mm-level-value level-not-optimal";
       } else {
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracion = "Recomendada (4-6h)";
       refrigeracionDesc = "Para controlar la fermentación y mejorar el sabor";
       proTip = "Realiza la fermentación final en refrigeración para obtener una miga más abierta y un sabor equilibrado.";
-    } else if (temperature < 36) {
+    } else {
       masaMadre = "10-15%";
       masaMadreDesc = "Porcentaje reducido para evitar fermentación excesiva";
       agua = "15-18°C";
@@ -249,16 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracion = "Obligatoria (8-12h)";
       refrigeracionDesc = "Para controlar completamente la fermentación";
       proTip = "Si tu masa dobla en menos de 2 horas, refrigera inmediatamente para evitar que se colapse.";
-    } else {
-      masaMadre = "8-12%";
-      masaMadreDesc = "Mínimo porcentaje para controlar la fermentación";
-      agua = "12-15°C";
-      aguaDesc = "Agua fría (sin hielo) para contrarrestar el calor";
-      fermentacion = "1.5-2.5 horas";
-      fermentacionDesc = "Monitorea cada 20-30 minutos";
-      refrigeracion = "Obligatoria (10-14h)";
-      refrigeracionDesc = "Esencial para un buen resultado";
-      proTip = "Evita usar hielo directamente, ya que el shock térmico puede matar parte de las levaduras. Mezcla 2/3 de agua del grifo con 1/3 de agua refrigerada.";
     }
     
     // Actualizar recomendaciones solo si los elementos existen
