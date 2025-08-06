@@ -1,0 +1,7 @@
+termometroregio/
+├── index.html
+├── style.css
+├── script.js
+├── package.json
+└── api/
+    └── weather.js

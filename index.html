@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termómetro de Fermentación Regio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sección del Termómetro de Fermentación Regio -->
+    <section class="mm-thermometer-section">
+        <h2 class="mm-thermometer-title">🌡️ Termómetro de Fermentación Regio</h2>
+        <div class="mm-thermometer-container">
+            <div class="mm-thermometer-header">
+                <div class="mm-location-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Monterrey, NL - Área Metropolitana</span>
+                </div>
+                <div class="mm-last-updated" id="mm-last-updated">Actualizando...</div>
+            </div>
+            
+            <div class="mm-weather-data">
+                <div class="mm-weather-main">
+                    <div class="mm-weather-icon" id="mm-weather-icon">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <div class="mm-temperature" id="mm-temperature">--</div>
+                    <div class="mm-weather-details">
+                        <div class="mm-detail">
+                            <i class="fas fa-tint"></i>
+                            <span>Humedad: <span id="mm-humidity">--</span>%</span>
+                        </div>
+                        <div class="mm-detail">
+                            <i class="fas fa-wind"></i>
+                            <span>Viento: <span id="mm-wind">--</span> km/h</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mm-fermentation-level">
+                    <div class="mm-level-title">Nivel de Dificultad:</div>
+                    <div class="mm-level-value" id="mm-level-value">--</div>
+                    <div class="mm-level-description" id="mm-level-description">Obteniendo datos...</div>
+                </div>
+            </div>
+            
+            <div class="mm-thermometer-visual">
+                <div class="mm-thermometer-scale">
+                    <!-- Marcas del termómetro (rango 24-42°C) -->
+                    <div class="mm-scale-mark" style="left: 0%;">
+                        <div class="mm-mark-line"></div>
+                        <div class="mm-mark-label">24°C</div>
+                    </div>
+                    <div class="mm-scale-mark" style="left: 33%;">
+                        <div class="mm-mark-line"></div>
+                        <div class="mm-mark-label">30°C</div>
+                    </div>
+                    <div class="mm-scale-mark" style="left: 66%;">
+                        <div class="mm-mark-line"></div>
+                        <div class="mm-mark-label">36°C</div>
+                    </div>
+                    <div class="mm-scale-mark" style="left: 100%;">
+                        <div class="mm-mark-line"></div>
+                        <div class="mm-mark-label">42°C</div>
+                    </div>
+                    
+                    <!-- Zona óptima (24-28°C) -->
+                    <div class="mm-optimal-zone" style="left: 0%; width: 22%;"></div>
+                    
+                    <!-- Indicador de temperatura actual -->
+                    <div class="mm-temperature-indicator" id="mm-temperature-indicator">
+                        <div class="mm-indicator-arrow"></div>
+                        <div class="mm-indicator-value">--°C</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mm-recommendations">
+                <h3>Recomendaciones para hoy:</h3>
+                <div class="mm-recommendation-grid">
+                    <div class="mm-recommendation-card">
+                        <div class="mm-rec-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="mm-rec-title">Inoculante</div>
+                        <div class="mm-rec-value" id="mm-rec-inoculante">--</div>
+                        <div class="mm-rec-desc" id="mm-rec-inoculante-desc">Porcentaje ideal para hoy</div>
+                    </div>
+                    <div class="mm-recommendation-card">
+                        <div class="mm-rec-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="mm-rec-title">Agua</div>
+                        <div class="mm-rec-value" id="mm-rec-agua">--</div>
+                        <div class="mm-rec-desc" id="mm-rec-agua-desc">Temperatura ideal</div>
+                    </div>
+                    <div class="mm-recommendation-card">
+                        <div class="mm-rec-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="mm-rec-title">Fermentación</div>
+                        <div class="mm-rec-value" id="mm-rec-fermentacion">--</div>
+                        <div class="mm-rec-desc" id="mm-rec-fermentacion-desc">Tiempo estimado</div>
+                    </div>
+                    <div class="mm-recommendation-card">
+                        <div class="mm-rec-icon">
+                            <i class="fas fa-snowflake"></i>
+                        </div>
+                        <div class="mm-rec-title">Refrigeración</div>
+                        <div class="mm-rec-value" id="mm-rec-refrigeracion">--</div>
+                        <div class="mm-rec-desc" id="mm-rec-refrigeracion-desc">Horas recomendadas</div>
+                    </div>
+                </div>
+                
+                <div class="mm-pro-tip">
+                    <div class="mm-pro-tip-icon">💡</div>
+                    <div class="mm-pro-tip-content">
+                        <span id="mm-pro-tip">Obteniendo consejo profesional...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mm-refresh-container">
+                <button id="mm-refresh-button" class="mm-blog-button mm-secondary-button">
+                    <i class="fas fa-sync-alt"></i> Actualizar Datos
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
