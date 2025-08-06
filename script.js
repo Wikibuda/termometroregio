@@ -2,15 +2,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Elementos del DOM - VERIFICAMOS QUE EXISTAN ANTES DE USARLOS
   const temperatureEl = document.getElementById('mm-temperature');
   const humidityEl = document.getElementById('mm-humidity');
-  const windEl = document.getElementById('mm-wind');
+  const altitudeEl = document.getElementById('mm-altitude');
   const weatherIconEl = document.getElementById('mm-weather-icon');
   const lastUpdatedEl = document.getElementById('mm-last-updated');
+  const currentDateEl = document.getElementById('mm-current-date');
   const levelValueEl = document.getElementById('mm-level-value');
   const levelDescriptionEl = document.getElementById('mm-level-description');
   
   // Elementos de recomendaciones
-  const recInoculanteEl = document.getElementById('mm-rec-inoculante');
-  const recInoculanteDescEl = document.getElementById('mm-rec-inoculante-desc');
+  const recMasaMadreEl = document.getElementById('mm-rec-masa-madre');
+  const recMasaMadreDescEl = document.getElementById('mm-rec-masa-madre-desc');
   const recAguaEl = document.getElementById('mm-rec-agua');
   const recAguaDescEl = document.getElementById('mm-rec-agua-desc');
   const recFermentacionEl = document.getElementById('mm-rec-fermentacion');
@@ -25,12 +26,35 @@ document.addEventListener('DOMContentLoaded', function() {
   // URL de tu función Vercel
   const WEATHER_API_URL = 'https://mm-weather-api.vercel.app/api/weather';
   
+  // Configuración de Monterrey
+  const MONTERREY_ALTITUDE = 540; // metros sobre el nivel del mar
+  
+  // Función para actualizar la fecha actual
+  function updateCurrentDate() {
+    const now = new Date();
+    const options = { 
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+    
+    // Formatear la fecha en español con primera letra mayúscula
+    const dateString = now.toLocaleDateString('es-MX', options);
+    const formattedDate = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+    
+    if (currentDateEl) {
+      currentDateEl.textContent = formattedDate;
+    }
+  }
+  
   // Función para actualizar la visualización del clima
   function updateWeatherDisplay(data) {
     // Actualizar datos básicos solo si los elementos existen
     if (temperatureEl) temperatureEl.textContent = data.temperature;
     if (humidityEl) humidityEl.textContent = data.humidity;
-    if (windEl) windEl.textContent = data.windSpeed;
+    
+    // Mostrar la altitud de Monterrey
+    if (altitudeEl) altitudeEl.textContent = MONTERREY_ALTITUDE;
     
     // Actualizar icono del clima
     if (weatherIconEl) updateWeatherIcon(data.weatherId);
@@ -43,6 +67,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Generar recomendaciones
     generateRecommendations(data.temperature, data.humidity);
+    
+    // Ajustar posición de la leyenda según la temperatura
+    adjustOptimalZoneLabel(data.temperature);
+  }
+  
+  // Función para ajustar la posición de la leyenda de la zona óptima
+  function adjustOptimalZoneLabel(temperature) {
+    const labelEl = document.querySelector('.mm-optimal-zone-label');
+    if (!labelEl) return;
+    
+    // Si la temperatura está dentro de la zona óptima, mover la leyenda ligeramente
+    if (temperature >= 24 && temperature <= 28) {
+      // Calcular posición relativa dentro de la zona óptima (0-1)
+      const positionInZone = (temperature - 24) / 4;
+      
+      // Si está en el primer 30% de la zona, mover a la derecha
+      if (positionInZone < 0.3) {
+        labelEl.style.left = '15%';
+      } 
+      // Si está en el último 30% de la zona, mover a la izquierda
+      else if (positionInZone > 0.7) {
+        labelEl.style.left = '7%';
+      }
+      // Si está en el centro, usar posición predeterminada
+      else {
+        labelEl.style.left = '11%';
+      }
+    } 
+    // Si no está en la zona óptima, usar posición predeterminada
+    else {
+      labelEl.style.left = '11%';
+    }
   }
   
   // Función para actualizar el termómetro visual
@@ -126,19 +182,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actualizar visualización del nivel
     if (levelValueEl) {
       levelValueEl.textContent = level;
-      levelValueEl.className = "mm-level-value " + className;
+      
+      // Si no es óptimo (fuera de 24-28°C), usar color rojo
+      if (temperature < 24 || temperature >= 28) {
+        levelValueEl.className = "mm-level-value level-not-optimal";
+      } else {
+        levelValueEl.className = "mm-level-value " + className;
+      }
+      
       if (levelDescriptionEl) levelDescriptionEl.textContent = description;
     }
   }
   
   // Función para generar recomendaciones
   function generateRecommendations(temperature, humidity) {
-    let inoculante, inoculanteDesc, agua, aguaDesc, fermentacion, fermentacionDesc, refrigeracion, refrigeracionDesc, proTip;
+    let masaMadre, masaMadreDesc, agua, aguaDesc, fermentacion, fermentacionDesc, refrigeracion, refrigeracionDesc, proTip;
     
     // Recomendaciones basadas en temperatura
     if (temperature < 20) {
-      inoculante = "30-40%";
-      inoculanteDesc = "Aumenta el porcentaje de masa madre para acelerar la fermentación";
+      masaMadre = "30-40%";
+      masaMadreDesc = "Aumenta el porcentaje de masa madre para acelerar la fermentación";
       agua = "30-35°C";
       aguaDesc = "Usa agua tibia para activar las levaduras";
       fermentacion = "5-7 horas";
@@ -147,8 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracionDesc = "La refrigeración ralentizaría demasiado el proceso";
       proTip = "Coloca tu masa cerca de una fuente de calor indirecto (como el horno apagado con una taza de agua caliente) para mantener una temperatura constante.";
     } else if (temperature < 24) {
-      inoculante = "25-30%";
-      inoculanteDesc = "Porcentaje ligeramente mayor para una fermentación óptima";
+      masaMadre = "25-30%";
+      masaMadreDesc = "Porcentaje ligeramente mayor para una fermentación óptima";
       agua = "28-30°C";
       aguaDesc = "Agua ligeramente tibia para mantener la temperatura ideal";
       fermentacion = "4-5 horas";
@@ -157,8 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracionDesc = "Solo para sabores más ácidos";
       proTip = "Monitorea tu masa cada 30 minutos durante la fermentación para evitar sobrefermentación.";
     } else if (temperature < 28) {
-      inoculante = "20-25%";
-      inoculanteDesc = "Porcentaje estándar para una fermentación equilibrada";
+      masaMadre = "20-25%";
+      masaMadreDesc = "Porcentaje estándar para una fermentación equilibrada";
       agua = "24-26°C";
       aguaDesc = "Agua a temperatura ambiente ideal";
       fermentacion = "3-4 horas";
@@ -167,8 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracionDesc = "Para sabores más complejos";
       proTip = "Este es el momento perfecto para experimentar con diferentes harinas y técnicas de fermentación.";
     } else if (temperature < 32) {
-      inoculante = "15-20%";
-      inoculanteDesc = "Reduce el porcentaje para controlar la velocidad de fermentación";
+      masaMadre = "15-20%";
+      masaMadreDesc = "Reduce el porcentaje para controlar la velocidad de fermentación";
       agua = "20-22°C";
       aguaDesc = "Agua ligeramente fría para contrarrestar el calor";
       fermentacion = "2.5-3.5 horas";
@@ -177,8 +240,8 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracionDesc = "Para controlar la fermentación y mejorar el sabor";
       proTip = "Realiza la fermentación final en refrigeración para obtener una miga más abierta y un sabor equilibrado.";
     } else if (temperature < 36) {
-      inoculante = "10-15%";
-      inoculanteDesc = "Porcentaje reducido para evitar fermentación excesiva";
+      masaMadre = "10-15%";
+      masaMadreDesc = "Porcentaje reducido para evitar fermentación excesiva";
       agua = "15-18°C";
       aguaDesc = "Agua fría para neutralizar el calor ambiental";
       fermentacion = "2-3 horas";
@@ -187,8 +250,8 @@ document.addEventListener('DOMContentLoaded', function() {
       refrigeracionDesc = "Para controlar completamente la fermentación";
       proTip = "Si tu masa dobla en menos de 2 horas, refrigera inmediatamente para evitar que se colapse.";
     } else {
-      inoculante = "8-12%";
-      inoculanteDesc = "Mínimo porcentaje para controlar la fermentación";
+      masaMadre = "8-12%";
+      masaMadreDesc = "Mínimo porcentaje para controlar la fermentación";
       agua = "12-15°C";
       aguaDesc = "Agua fría (sin hielo) para contrarrestar el calor";
       fermentacion = "1.5-2.5 horas";
@@ -199,8 +262,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Actualizar recomendaciones solo si los elementos existen
-    if (recInoculanteEl) recInoculanteEl.textContent = inoculante;
-    if (recInoculanteDescEl) recInoculanteDescEl.textContent = inoculanteDesc;
+    if (recMasaMadreEl) recMasaMadreEl.textContent = masaMadre;
+    if (recMasaMadreDescEl) recMasaMadreDescEl.textContent = masaMadreDesc;
     if (recAguaEl) recAguaEl.textContent = agua;
     if (recAguaDescEl) recAguaDescEl.textContent = aguaDesc;
     if (recFermentacionEl) recFermentacionEl.textContent = fermentacion;
@@ -216,16 +279,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (temperatureEl) {
       temperatureEl.textContent = 'N/A';
       humidityEl.textContent = 'N/A';
-      windEl.textContent = 'N/A';
+      if (altitudeEl) altitudeEl.textContent = 'N/A';
     }
     
     if (levelValueEl) {
       levelValueEl.textContent = 'ERROR';
+      levelValueEl.className = "mm-level-value level-not-optimal";
       if (levelDescriptionEl) levelDescriptionEl.textContent = errorMessage || 'No se pudieron obtener los datos climáticos.';
     }
     
     // Limpiar recomendaciones solo si los elementos existen
-    if (recInoculanteEl) recInoculanteEl.textContent = '--';
+    if (recMasaMadreEl) recMasaMadreEl.textContent = '--';
     if (recAguaEl) recAguaEl.textContent = '--';
     if (recFermentacionEl) recFermentacionEl.textContent = '--';
     if (recRefrigeracionEl) recRefrigeracionEl.textContent = '--';
@@ -252,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Mostrar estado de carga solo si los elementos existen
       if (temperatureEl) temperatureEl.textContent = '...';
       if (humidityEl) humidityEl.textContent = '...';
-      if (windEl) windEl.textContent = '...';
+      if (altitudeEl) altitudeEl.textContent = '...';
       
       // Añade un timestamp para evitar caché
       const urlWithTimestamp = `${WEATHER_API_URL}?t=${Date.now()}`;
@@ -281,6 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Inicializar
+  updateCurrentDate(); // Actualizar la fecha
   fetchWeatherData();
   
   // Configurar actualización periódica cada 30 minutos
