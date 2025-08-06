@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const recRefrigeracionDescEl = document.getElementById('mm-rec-refrigeracion-desc');
   const proTipEl = document.getElementById('mm-pro-tip');
   
+  // Elementos para advertencias de altitud y humedad
+  const altitudeWarningEl = document.getElementById('mm-altitude-warning');
+  const humidityWarningEl = document.getElementById('mm-humidity-warning');
+  
   // Botón de actualización
   const refreshButton = document.getElementById('mm-refresh-button');
   
@@ -32,8 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Rango de temperatura para el termómetro
   const MIN_TEMP = 0;
   const MAX_TEMP = 42;
-  const OPTIMAL_MIN = 24;
-  const OPTIMAL_MAX = 28;
+  const OPTIMAL_MIN_BASE = 24;
+  const OPTIMAL_MAX_BASE = 28;
   
   // Función para actualizar la fecha actual
   function updateCurrentDate() {
@@ -72,10 +76,14 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateFermentationLevel(data.temperature, data.humidity);
     
     // Generar recomendaciones
-    generateRecommendations(data.temperature, data.humidity);
+    generateRecommendations(data.temperature, data.humidity, MONTERREY_ALTITUDE);
     
     // Ajustar posición de la leyenda según la temperatura
     adjustOptimalZoneLabel(data.temperature);
+    
+    // Mostrar advertencias de altitud y humedad
+    showAltitudeWarning(MONTERREY_ALTITUDE);
+    showHumidityWarning(data.humidity);
   }
   
   // Función para ajustar la posición de la leyenda
@@ -194,59 +202,104 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Función para generar recomendaciones
-  function generateRecommendations(temperature, humidity) {
+  // Función para mostrar advertencia de altitud
+  function showAltitudeWarning(altitude) {
+    if (!altitudeWarningEl) return;
+    
+    let warningMessage = '';
+    
+    // Mostrar advertencia si la altitud es significativa
+    if (altitude > 300) {
+      if (altitude > 2500) {
+        warningMessage = '⚠️ Altitud muy alta: Reduce ligeramente la cantidad de masa madre y acorta los tiempos de fermentación.';
+      } else if (altitude > 1500) {
+        warningMessage = '⚠️ Altitud elevada: Ajusta los tiempos de fermentación, serán ligeramente más cortos.';
+      } else if (altitude > 500) {
+        warningMessage = '⚠️ Altitud moderada: Los tiempos de fermentación pueden ser ligeramente más cortos que a nivel del mar.';
+      }
+    }
+    
+    altitudeWarningEl.innerHTML = warningMessage;
+  }
+  
+  // Función para mostrar advertencia de humedad
+  function showHumidityWarning(humidity) {
+    if (!humidityWarningEl) return;
+    
+    let warningMessage = '';
+    
+    // Mostrar advertencia según el nivel de humedad
+    if (humidity > 70) {
+      warningMessage = '💧 Alta humedad: Reduce ligeramente el agua en tu receta, la harina absorbe menos agua en ambientes húmedos.';
+    } else if (humidity < 40) {
+      warningMessage = '💧 Baja humedad: Aumenta ligeramente el agua en tu receta, la harina absorbe más agua en ambientes secos.';
+    }
+    
+    humidityWarningEl.innerHTML = warningMessage;
+  }
+  
+  // Función para generar recomendaciones considerando temperatura, humedad y altitud
+  function generateRecommendations(temperature, humidity, altitude) {
     let masaMadre, masaMadreDesc, agua, aguaDesc, fermentacion, fermentacionDesc, refrigeracion, refrigeracionDesc, proTip;
+    
+    // Factor de ajuste por altitud
+    const altitudeFactor = altitude > 0 ? 1 - (altitude / 3000) : 1;
+    
+    // Factor de ajuste por humedad
+    const humidityFactor = humidity > 70 ? 0.9 : humidity < 40 ? 1.1 : 1;
+    
+    // Factor combinado
+    const combinedFactor = altitudeFactor * humidityFactor;
     
     // Recomendaciones basadas en temperatura
     if (temperature < 20) {
-      masaMadre = "30-40%";
+      masaMadre = Math.round(30 * combinedFactor) + "-" + Math.round(40 * combinedFactor) + "%";
       masaMadreDesc = "Aumenta el porcentaje de masa madre para acelerar la fermentación";
-      agua = "30-35°C";
+      agua = Math.round(30 * combinedFactor) + "-" + Math.round(35 * combinedFactor) + "°C";
       aguaDesc = "Usa agua tibia para activar las levaduras";
-      fermentacion = "5-7 horas";
+      fermentacion = Math.round(5 * combinedFactor) + "-" + Math.round(7 * combinedFactor) + " horas";
       fermentacionDesc = "Tiempo extendido debido a la baja temperatura";
       refrigeracion = "No recomendada";
       refrigeracionDesc = "La refrigeración ralentizaría demasiado el proceso";
       proTip = "Coloca tu masa cerca de una fuente de calor indirecto (como el horno apagado con una taza de agua caliente) para mantener una temperatura constante.";
     } else if (temperature < 24) {
-      masaMadre = "25-30%";
+      masaMadre = Math.round(25 * combinedFactor) + "-" + Math.round(30 * combinedFactor) + "%";
       masaMadreDesc = "Porcentaje ligeramente mayor para una fermentación óptima";
-      agua = "28-30°C";
+      agua = Math.round(28 * combinedFactor) + "-" + Math.round(30 * combinedFactor) + "°C";
       aguaDesc = "Agua ligeramente tibia para mantener la temperatura ideal";
-      fermentacion = "4-5 horas";
+      fermentacion = Math.round(4 * combinedFactor) + "-" + Math.round(5 * combinedFactor) + " horas";
       fermentacionDesc = "Tiempo ligeramente extendido";
       refrigeracion = "Opcional";
       refrigeracionDesc = "Solo para sabores más ácidos";
       proTip = "Monitorea tu masa cada 30 minutos durante la fermentación para evitar sobrefermentación.";
     } else if (temperature < 28) {
-      masaMadre = "20-25%";
+      masaMadre = Math.round(20 * combinedFactor) + "-" + Math.round(25 * combinedFactor) + "%";
       masaMadreDesc = "Porcentaje estándar para una fermentación equilibrada";
-      agua = "24-26°C";
+      agua = Math.round(24 * combinedFactor) + "-" + Math.round(26 * combinedFactor) + "°C";
       aguaDesc = "Agua a temperatura ambiente ideal";
-      fermentacion = "3-4 horas";
+      fermentacion = Math.round(3 * combinedFactor) + "-" + Math.round(4 * combinedFactor) + " horas";
       fermentacionDesc = "Tiempo óptimo para una buena fermentación";
       refrigeracion = "Opcional";
       refrigeracionDesc = "Para sabores más complejos";
       proTip = "Este es el momento perfecto para experimentar con diferentes harinas y técnicas de fermentación.";
     } else if (temperature < 32) {
-      masaMadre = "15-20%";
+      masaMadre = Math.round(15 * combinedFactor) + "-" + Math.round(20 * combinedFactor) + "%";
       masaMadreDesc = "Reduce el porcentaje para controlar la velocidad de fermentación";
-      agua = "20-22°C";
+      agua = Math.round(20 * combinedFactor) + "-" + Math.round(22 * combinedFactor) + "°C";
       aguaDesc = "Agua ligeramente fría para contrarrestar el calor";
-      fermentacion = "2.5-3.5 horas";
+      fermentacion = Math.round(2.5 * combinedFactor) + "-" + Math.round(3.5 * combinedFactor) + " horas";
       fermentacionDesc = "Tiempo reducido para evitar sobrefermentación";
-      refrigeracion = "Recomendada (4-6h)";
+      refrigeracion = "Recomendada (" + Math.round(4 * combinedFactor) + "-" + Math.round(6 * combinedFactor) + "h)";
       refrigeracionDesc = "Para controlar la fermentación y mejorar el sabor";
       proTip = "Realiza la fermentación final en refrigeración para obtener una miga más abierta y un sabor equilibrado.";
     } else {
-      masaMadre = "10-15%";
+      masaMadre = Math.round(10 * combinedFactor) + "-" + Math.round(15 * combinedFactor) + "%";
       masaMadreDesc = "Porcentaje reducido para evitar fermentación excesiva";
-      agua = "15-18°C";
+      agua = Math.round(15 * combinedFactor) + "-" + Math.round(18 * combinedFactor) + "°C";
       aguaDesc = "Agua fría para neutralizar el calor ambiental";
-      fermentacion = "2-3 horas";
+      fermentacion = Math.round(2 * combinedFactor) + "-" + Math.round(3 * combinedFactor) + " horas";
       fermentacionDesc = "Monitorea cada 30 minutos";
-      refrigeracion = "Obligatoria (8-12h)";
+      refrigeracion = "Obligatoria (" + Math.round(8 * combinedFactor) + "-" + Math.round(12 * combinedFactor) + "h)";
       refrigeracionDesc = "Para controlar completamente la fermentación";
       proTip = "Si tu masa dobla en menos de 2 horas, refrigera inmediatamente para evitar que se colapse.";
     }
@@ -284,6 +337,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (recFermentacionEl) recFermentacionEl.textContent = '--';
     if (recRefrigeracionEl) recRefrigeracionEl.textContent = '--';
     if (proTipEl) proTipEl.textContent = 'Hubo un problema al obtener los datos climáticos. Por favor, intenta actualizar.';
+    
+    // Limpiar advertencias
+    if (altitudeWarningEl) altitudeWarningEl.innerHTML = '';
+    if (humidityWarningEl) humidityWarningEl.innerHTML = '';
   }
   
   // Función para actualizar la hora de última actualización

@@ -65,7 +65,7 @@
   border-radius: 3px;
 }
 
-/* Encabezado del termómetro */
+/* Encabezado del termómero */
 .mm-thermometer-header {
   display: flex;
   justify-content: space-between;
@@ -212,7 +212,7 @@
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
 }
 
-/* Números destacados de la zona óptima (24°C y 28°C) */
+/* Números destacados de la zona óptima */
 .mm-scale-mark:nth-child(2) .mm-mark-label {
   font-size: 15px;
   font-weight: bold;
@@ -438,6 +438,26 @@
 /* Nivel NO óptimo en verde oscuro */
 .level-not-optimal {
   color: var(--color-verde-oscuro) !important;
+}
+
+/* Ajuste para altitud */
+.altitude-warning {
+  background: rgba(239, 108, 0, 0.1);
+  border-left: 3px solid #ef6c00;
+  padding: 5px 10px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+/* Ajuste para humedad */
+.humidity-warning {
+  background: rgba(33, 150, 243, 0.1);
+  border-left: 3px solid #2196f3;
+  padding: 5px 10px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 10px;
+  font-size: 0.9em;
 }
 
 /* ===== MEDIA QUERIES - CORREGIDAS Y OPTIMIZADAS ===== */
