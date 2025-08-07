@@ -34,11 +34,21 @@ export default async function handler(req, res) {
       });
     }
     
-    const CITY = 'Monterrey';
-    const COUNTRY_CODE = 'MX';
+    // Obtener parámetros de la URL
+    const { lat, lon } = req.query;
     
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${COUNTRY_CODE}&appid=${API_KEY}&units=metric&lang=es`;
-    console.log('URL de la API:', apiUrl.replace(API_KEY, '***REDACTED***'));
+    let apiUrl;
+    
+    // Si hay coordenadas, usarlas; si no, usar Monterrey por defecto
+    if (lat && lon) {
+      console.log(`Obteniendo clima para coordenadas: ${lat}, ${lon}`);
+      apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es`;
+    } else {
+      console.log('Obteniendo clima para Monterrey por defecto');
+      const CITY = 'Monterrey';
+      const COUNTRY_CODE = 'MX';
+      apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${COUNTRY_CODE}&appid=${API_KEY}&units=metric&lang=es`;
+    }
     
     const response = await fetch(apiUrl);
     
@@ -84,7 +94,7 @@ export default async function handler(req, res) {
     const processedData = {
       temperature: Math.round(data.main.temp),
       humidity: data.main.humidity,
-      windSpeed: Math.round(data.wind.speed * 3.6),
+      altitude: data.coord ? Math.round(data.main.grnd_level || data.main.sea_level || 0) : 540, // Altitud en metros
       weatherId: data.weather[0].id,
       timestamp: new Date().toISOString()
     };

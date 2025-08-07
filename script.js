@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentDateEl = document.getElementById('mm-current-date');
   const levelValueEl = document.getElementById('mm-level-value');
   const levelDescriptionEl = document.getElementById('mm-level-description');
+  const userLocationEl = document.getElementById('mm-user-location');
   
   // Elementos de recomendaciones
   const recMasaMadreEl = document.getElementById('mm-rec-masa-madre');
@@ -27,17 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Botón de actualización
   const refreshButton = document.getElementById('mm-refresh-button');
   
+  // Variables de ubicación
+  let userLatitude = null;
+  let userLongitude = null;
+  let userCity = null;
+  let userState = null;
+  
   // URL de tu función Vercel
   const WEATHER_API_URL = 'https://mm-weather-api.vercel.app/api/weather';
-  
-  // Configuración de Monterrey
-  const MONTERREY_ALTITUDE = 540; // metros sobre el nivel del mar
-  
-  // Rango de temperatura para el termómetro
-  const MIN_TEMP = 0;
-  const MAX_TEMP = 42;
-  const OPTIMAL_MIN_BASE = 24;
-  const OPTIMAL_MAX_BASE = 28;
   
   // Función para actualizar la fecha actual
   function updateCurrentDate() {
@@ -57,14 +55,94 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Función para obtener la ubicación del usuario
+  function getUserLocation() {
+    if (userLocationEl) {
+      userLocationEl.textContent = 'Obteniendo ubicación...';
+      userLocationEl.className = 'mm-user-location mm-location-loading';
+    }
+    
+    if (!navigator.geolocation) {
+      if (userLocationEl) {
+        userLocationEl.textContent = 'Geolocalización no soportada por tu navegador';
+        userLocationEl.className = 'mm-user-location';
+      }
+      // Usar ubicación por defecto (Monterrey) si no hay geolocalización
+      userLatitude = 25.6866;
+      userLongitude = -100.3161;
+      userCity = 'Monterrey';
+      userState = 'NL';
+      fetchWeatherData();
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLatitude = position.coords.latitude;
+        userLongitude = position.coords.longitude;
+        
+        // Obtener el nombre de la ciudad y estado
+        reverseGeocode(userLatitude, userLongitude);
+      },
+      (error) => {
+        console.error('Error al obtener ubicación:', error);
+        if (userLocationEl) {
+          userLocationEl.textContent = 'No se pudo obtener tu ubicación';
+          userLocationEl.className = 'mm-user-location';
+        }
+        
+        // Usar ubicación por defecto (Monterrey) si falla la geolocalización
+        userLatitude = 25.6866;
+        userLongitude = -100.3161;
+        userCity = 'Monterrey';
+        userState = 'NL';
+        fetchWeatherData();
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+  }
+  
+  // Función para obtener el nombre de la ciudad y estado
+  function reverseGeocode(latitude, longitude) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`)
+      .then(response => response.json())
+      .then(data => {
+        userCity = data.address.city || data.address.town || data.address.village || 'Ubicación desconocida';
+        userState = data.address.state || 'Estado desconocido';
+        
+        // Actualizar la ubicación en la interfaz
+        if (userLocationEl) {
+          userLocationEl.textContent = `${userCity}, ${userState}`;
+          userLocationEl.className = 'mm-user-location';
+        }
+        
+        // Obtener datos climáticos
+        fetchWeatherData();
+      })
+      .catch(error => {
+        console.error('Error en reverse geocoding:', error);
+        
+        // Si falla el reverse geocoding, usar los valores por defecto
+        userCity = 'Ubicación';
+        userState = 'desconocida';
+        
+        if (userLocationEl) {
+          userLocationEl.textContent = `${userCity}, ${userState}`;
+          userLocationEl.className = 'mm-user-location';
+        }
+        
+        fetchWeatherData();
+      });
+  }
+  
   // Función para actualizar la visualización del clima
   function updateWeatherDisplay(data) {
     // Actualizar datos básicos solo si los elementos existen
     if (temperatureEl) temperatureEl.textContent = data.temperature;
     if (humidityEl) humidityEl.textContent = data.humidity;
     
-    // Mostrar la altitud de Monterrey
-    if (altitudeEl) altitudeEl.textContent = MONTERREY_ALTITUDE;
+    // Mostrar la altitud basada en la ubicación
+    if (altitudeEl) altitudeEl.textContent = data.altitude || 'N/A';
     
     // Actualizar icono del clima
     if (weatherIconEl) updateWeatherIcon(data.weatherId);
@@ -76,13 +154,13 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateFermentationLevel(data.temperature, data.humidity);
     
     // Generar recomendaciones
-    generateRecommendations(data.temperature, data.humidity, MONTERREY_ALTITUDE);
+    generateRecommendations(data.temperature, data.humidity, data.altitude);
     
     // Ajustar posición de la leyenda según la temperatura
     adjustOptimalZoneLabel(data.temperature);
     
     // Mostrar advertencias de altitud y humedad
-    showAltitudeWarning(MONTERREY_ALTITUDE);
+    showAltitudeWarning(data.altitude);
     showHumidityWarning(data.humidity);
   }
   
@@ -118,6 +196,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Función para actualizar el termómetro visual con gradiente verde único
   function updateThermometer(temperature) {
     // Calcular posición del indicador (rango 0-42°C)
+    const MIN_TEMP = 0;
+    const MAX_TEMP = 42;
     const position = ((temperature - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100;
     
     // Asegurar que la posición esté dentro del rango 0-100%
@@ -365,8 +445,14 @@ document.addEventListener('DOMContentLoaded', function() {
       if (humidityEl) humidityEl.textContent = '...';
       if (altitudeEl) altitudeEl.textContent = '...';
       
+      // Si no tenemos coordenadas, obtener la ubicación
+      if (userLatitude === null || userLongitude === null) {
+        getUserLocation();
+        return;
+      }
+      
       // Añade un timestamp para evitar caché
-      const urlWithTimestamp = `${WEATHER_API_URL}?t=${Date.now()}`;
+      const urlWithTimestamp = `${WEATHER_API_URL}?lat=${userLatitude}&lon=${userLongitude}&t=${Date.now()}`;
       
       const response = await fetch(urlWithTimestamp, {
         method: 'GET',
@@ -393,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Inicializar
   updateCurrentDate(); // Actualizar la fecha
-  fetchWeatherData();
+  getUserLocation(); // Obtener la ubicación del usuario
   
   // Configurar actualización periódica cada 30 minutos
   setInterval(fetchWeatherData, 30 * 60 * 1000);

@@ -47,10 +47,29 @@
   color: var(--color-acento);
   font-family: 'Times New Roman', serif;
   margin-top: 0;
-  margin-bottom: 25px;
+  margin-bottom: 5px;
   text-align: center;
   font-size: 26px;
   position: relative;
+}
+
+.mm-thermometer-subtitle {
+  color: var(--color-verde-oscuro);
+  font-family: 'Quattrocento Sans', sans-serif;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.mm-thermometer-subtitle a {
+  color: var(--color-verde-oscuro);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.mm-thermometer-subtitle a:hover {
+  text-decoration: underline;
 }
 
 .mm-thermometer-title:after {
@@ -65,7 +84,7 @@
   border-radius: 3px;
 }
 
-/* Encabezado del termómero */
+/* Encabezado del termómetro */
 .mm-thermometer-header {
   display: flex;
   justify-content: space-between;
@@ -458,6 +477,19 @@
   border-radius: 0 4px 4px 0;
   margin-top: 10px;
   font-size: 0.9em;
+}
+
+/* Ubicación del usuario */
+.mm-user-location {
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: var(--color-verde-oscuro);
+}
+
+.mm-location-loading {
+  color: #666;
+  font-style: italic;
 }
 
 /* ===== MEDIA QUERIES - CORREGIDAS Y OPTIMIZADAS ===== */

@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termómetro de Fermentación Regio</title>
+    <title>Termómetro de Fermentación | Masa Madre Monterrey</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Sección del Termómetro de Fermentación Regio -->
+    <!-- Sección del Termómetro de Fermentación -->
     <section class="mm-thermometer-section">
-        <h2 class="mm-thermometer-title">🌡️ Termómetro de Fermentación Regio</h2>
+        <h1 class="mm-thermometer-title">🌡️ Termómetro de Fermentación</h1>
+        <div class="mm-thermometer-subtitle">
+            <a href="https://masamadremonterrey.com" target="_blank">Masa Madre Monterrey, Panadería en Línea</a>
+        </div>
         <div class="mm-thermometer-container">
+            <div class="mm-user-location" id="mm-user-location">Obteniendo ubicación...</div>
+            
             <div class="mm-thermometer-header">
                 <div class="mm-location-info">
                     <i class="fas fa-map-marker-alt"></i>
                     <div>
-                        <span>Monterrey, NL - Área Metropolitana</span>
+                        <span id="mm-city-state">Cargando ubicación...</span>
                         <div class="mm-current-date" id="mm-current-date">Cargando fecha...</div>
                     </div>
                 </div>
