@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentDateEl = document.getElementById('mm-current-date');
   const levelValueEl = document.getElementById('mm-level-value');
   const levelDescriptionEl = document.getElementById('mm-level-description');
-  const userLocationEl = document.getElementById('mm-user-location');
+  const cityStateEl = document.getElementById('mm-city-state');
   
   // Elementos de recomendaciones
   const recMasaMadreEl = document.getElementById('mm-rec-masa-madre');
@@ -57,16 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Función para obtener la ubicación del usuario
   function getUserLocation() {
-    if (userLocationEl) {
-      userLocationEl.textContent = 'Obteniendo ubicación...';
-      userLocationEl.className = 'mm-user-location mm-location-loading';
+    if (cityStateEl) {
+      cityStateEl.textContent = 'Obteniendo ubicación...';
     }
     
     if (!navigator.geolocation) {
-      if (userLocationEl) {
-        userLocationEl.textContent = 'Geolocalización no soportada por tu navegador';
-        userLocationEl.className = 'mm-user-location';
-      }
+      console.error('Geolocalización no soportada por el navegador');
       // Usar ubicación por defecto (Monterrey) si no hay geolocalización
       userLatitude = 25.6866;
       userLongitude = -100.3161;
@@ -86,10 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       (error) => {
         console.error('Error al obtener ubicación:', error);
-        if (userLocationEl) {
-          userLocationEl.textContent = 'No se pudo obtener tu ubicación';
-          userLocationEl.className = 'mm-user-location';
-        }
         
         // Usar ubicación por defecto (Monterrey) si falla la geolocalización
         userLatitude = 25.6866;
@@ -105,15 +97,19 @@ document.addEventListener('DOMContentLoaded', function() {
   // Función para obtener el nombre de la ciudad y estado
   function reverseGeocode(latitude, longitude) {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error en la respuesta del geocodificador');
+        }
+        return response.json();
+      })
       .then(data => {
         userCity = data.address.city || data.address.town || data.address.village || 'Ubicación desconocida';
         userState = data.address.state || 'Estado desconocido';
         
         // Actualizar la ubicación en la interfaz
-        if (userLocationEl) {
-          userLocationEl.textContent = `${userCity}, ${userState}`;
-          userLocationEl.className = 'mm-user-location';
+        if (cityStateEl) {
+          cityStateEl.textContent = `${userCity}, ${userState}`;
         }
         
         // Obtener datos climáticos
@@ -126,9 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
         userCity = 'Ubicación';
         userState = 'desconocida';
         
-        if (userLocationEl) {
-          userLocationEl.textContent = `${userCity}, ${userState}`;
-          userLocationEl.className = 'mm-user-location';
+        if (cityStateEl) {
+          cityStateEl.textContent = `${userCity}, ${userState}`;
         }
         
         fetchWeatherData();
@@ -300,6 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     altitudeWarningEl.innerHTML = warningMessage;
+    altitudeWarningEl.style.display = warningMessage ? 'block' : 'none';
   }
   
   // Función para mostrar advertencia de humedad
@@ -313,9 +309,12 @@ document.addEventListener('DOMContentLoaded', function() {
       warningMessage = '💧 Alta humedad: Reduce ligeramente el agua en tu receta, la harina absorbe menos agua en ambientes húmedos.';
     } else if (humidity < 40) {
       warningMessage = '💧 Baja humedad: Aumenta ligeramente el agua en tu receta, la harina absorbe más agua en ambientes secos.';
+    } else {
+      warningMessage = '💧 Humedad ideal: Tu receta puede seguir la cantidad estándar de agua.';
     }
     
     humidityWarningEl.innerHTML = warningMessage;
+    humidityWarningEl.style.display = 'block'; // Siempre mostrar
   }
   
   // Función para generar recomendaciones considerando temperatura, humedad y altitud
@@ -420,7 +419,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Limpiar advertencias
     if (altitudeWarningEl) altitudeWarningEl.innerHTML = '';
+    if (altitudeWarningEl) altitudeWarningEl.style.display = 'none';
     if (humidityWarningEl) humidityWarningEl.innerHTML = '';
+    if (humidityWarningEl) humidityWarningEl.style.display = 'none';
   }
   
   // Función para actualizar la hora de última actualización
@@ -457,8 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const response = await fetch(urlWithTimestamp, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache'
+          'Accept': 'application/json'
         },
         mode: 'cors'
       });
