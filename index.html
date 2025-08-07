@@ -51,44 +51,9 @@
             </div>
             
             <div class="mm-thermometer-visual">
-                <div class="mm-thermometer-scale">
-                    <!-- Marcas del termómetro (rango 0-42°C) -->
-                    <div class="mm-scale-mark" style="left: 0%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">0°C</div>
-                    </div>
-                    <div class="mm-scale-mark" style="left: 20%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">10°C</div>
-                    </div>
-                    <div class="mm-scale-mark" style="left: 40%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">24°C</div>
-                    </div>
-                    <div class="mm-scale-mark" style="left: 50%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">28°C</div>
-                    </div>
-                    <div class="mm-scale-mark" style="left: 60%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">32°C</div>
-                    </div>
-                    <div class="mm-scale-mark" style="left: 80%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">38°C</div>
-                    </div>
-                    <div class="mm-scale-mark" style="left: 100%;">
-                        <div class="mm-mark-line"></div>
-                        <div class="mm-mark-label">42°C</div>
-                    </div>
-                    
-                    <!-- Zona óptima (24-28°C) -->
-                    <div class="mm-optimal-zone"></div>
-                    
-                    <!-- Leyenda de zona óptima -->
-                    <div class="mm-optimal-zone-label" style="left: 50%;">
-                        <span class="mm-optimal-zone-text">Zona óptima (24-28°C)</span>
-                    </div>
+                <div class="mm-thermometer-scale" id="mm-thermometer-scale">
+                    <!-- Marcas del termómetro (rango dinámico) -->
+                    <div id="mm-optimal-range" class="mm-optimal-range"></div>
                     
                     <!-- Indicador de temperatura actual -->
                     <div class="mm-temperature-indicator" id="mm-temperature-indicator">

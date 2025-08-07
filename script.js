@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const altitudeWarningEl = document.getElementById('mm-altitude-warning');
   const humidityWarningEl = document.getElementById('mm-humidity-warning');
   
+  // Elementos del termómetro dinámico
+  let thermometerScaleEl = document.getElementById('mm-thermometer-scale');
+  const optimalRangeEl = document.getElementById('mm-optimal-range');
+  
   // Botón de actualización
   const refreshButton = document.getElementById('mm-refresh-button');
   
@@ -33,6 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
   let userLongitude = null;
   let userCity = null;
   let userState = null;
+  
+  // Variables del termómetro dinámico
+  let currentMinTemp = 0;
+  let currentMaxTemp = 42;
+  const RANGE_SIZE = 20; // 10 grados por debajo y 10 grados por encima
   
   // URL de tu función Vercel
   const WEATHER_API_URL = 'https://mm-weather-api.vercel.app/api/weather';
@@ -151,49 +160,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Generar recomendaciones
     generateRecommendations(data.temperature, data.humidity, data.altitude);
     
-    // Ajustar posición de la leyenda según la temperatura
-    adjustOptimalZoneLabel(data.temperature);
-    
     // Mostrar advertencias de altitud y humedad
     showAltitudeWarning(data.altitude);
     showHumidityWarning(data.humidity);
   }
   
-  // Función para ajustar la posición de la leyenda
-  function adjustOptimalZoneLabel(temperature) {
-    const labelEl = document.querySelector('.mm-optimal-zone-label');
-    if (!labelEl) return;
-    
-    // Si la temperatura está dentro de la zona óptima, mover la leyenda ligeramente
-    if (temperature >= 24 && temperature <= 28) {
-      // Calcular posición relativa dentro de la zona óptima (0-1)
-      const positionInZone = (temperature - 24) / 4;
-      
-      // Si está en el primer 30% de la zona, mover a la derecha
-      if (positionInZone < 0.3) {
-        labelEl.style.left = '45%';
-      } 
-      // Si está en el último 30% de la zona, mover a la izquierda
-      else if (positionInZone > 0.7) {
-        labelEl.style.left = '55%';
-      }
-      // Si está en el centro, usar posición predeterminada
-      else {
-        labelEl.style.left = '50%';
-      }
-    } 
-    // Si no está en la zona óptima, usar posición predeterminada
-    else {
-      labelEl.style.left = '50%';
-    }
-  }
-  
-  // Función para actualizar el termómetro visual con gradiente verde único
+  // Función para actualizar el termómetro visual con rango dinámico
   function updateThermometer(temperature) {
-    // Calcular posición del indicador (rango 0-42°C)
-    const MIN_TEMP = 0;
-    const MAX_TEMP = 42;
-    const position = ((temperature - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100;
+    // Calcular el rango dinámico (10 grados por debajo y 10 por encima)
+    currentMinTemp = Math.max(0, temperature - 10);
+    currentMaxTemp = temperature + 10;
+    
+    // Actualizar la escala del termómetro
+    updateThermometerScale();
+    
+    // Calcular posición del indicador
+    const position = ((temperature - currentMinTemp) / (currentMaxTemp - currentMinTemp)) * 100;
     
     // Asegurar que la posición esté dentro del rango 0-100%
     const clampedPosition = Math.max(0, Math.min(100, position));
@@ -205,6 +187,90 @@ document.addEventListener('DOMContentLoaded', function() {
       const indicatorValue = temperatureIndicatorEl.querySelector('.mm-indicator-value');
       if (indicatorValue) {
         indicatorValue.textContent = `${temperature}°C`;
+      }
+    }
+    
+    // Actualizar la zona óptima
+    updateOptimalRange(temperature);
+  }
+  
+  // Función para actualizar la escala del termómetro
+  function updateThermometerScale() {
+    // Limpiar la escala actual
+    if (thermometerScaleEl) {
+      // Mantener solo el contenedor base y eliminar las marcas existentes
+      const container = document.createElement('div');
+      container.id = 'mm-thermometer-scale';
+      container.className = 'mm-thermometer-scale';
+      container.innerHTML = `
+        <div id="mm-optimal-range" class="mm-optimal-range"></div>
+        <div class="mm-temperature-indicator" id="mm-temperature-indicator">
+          <div class="mm-indicator-arrow"></div>
+          <div class="mm-indicator-value">--°C</div>
+        </div>
+      `;
+      
+      // Reemplazar el contenedor actual
+      thermometerScaleEl.parentNode.replaceChild(container, thermometerScaleEl);
+      
+      // Actualizar la referencia
+      thermometerScaleEl = container;
+      
+      // Crear y añadir las nuevas marcas
+      const numMarks = 5; // Número de marcas a mostrar
+      const step = (currentMaxTemp - currentMinTemp) / (numMarks - 1);
+      
+      for (let i = 0; i < numMarks; i++) {
+        const temp = Math.round(currentMinTemp + (i * step));
+        const position = (i / (numMarks - 1)) * 100;
+        
+        const mark = document.createElement('div');
+        mark.className = 'mm-scale-mark';
+        mark.style.left = `${position}%`;
+        
+        const line = document.createElement('div');
+        line.className = 'mm-mark-line';
+        
+        const label = document.createElement('div');
+        label.className = 'mm-mark-label';
+        label.textContent = `${temp}°C`;
+        
+        mark.appendChild(line);
+        mark.appendChild(label);
+        thermometerScaleEl.appendChild(mark);
+      }
+    }
+  }
+  
+  // Función para actualizar la zona óptima
+  function updateOptimalRange(temperature) {
+    const optimalMin = 24;
+    const optimalMax = 28;
+    
+    // Si la zona óptima está dentro del rango visible
+    if (optimalMin <= currentMaxTemp && optimalMax >= currentMinTemp) {
+      // Calcular posición de la zona óptima
+      const start = ((optimalMin - currentMinTemp) / (currentMaxTemp - currentMinTemp)) * 100;
+      const end = ((optimalMax - currentMinTemp) / (currentMaxTemp - currentMinTemp)) * 100;
+      
+      // Actualizar la zona óptima
+      if (optimalRangeEl) {
+        optimalRangeEl.style.left = `${start}%`;
+        optimalRangeEl.style.width = `${end - start}%`;
+        optimalRangeEl.style.display = 'block';
+      }
+      
+      // Actualizar la leyenda de zona óptima
+      const optimalZoneLabel = document.querySelector('.mm-optimal-zone-label');
+      if (optimalZoneLabel) {
+        // Posicionar la leyenda en el centro de la zona óptima
+        const labelPosition = (start + end) / 2;
+        optimalZoneLabel.style.left = `${labelPosition}%`;
+      }
+    } else {
+      // Ocultar la zona óptima si está fuera del rango visible
+      if (optimalRangeEl) {
+        optimalRangeEl.style.display = 'none';
       }
     }
   }
