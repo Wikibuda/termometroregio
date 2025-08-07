@@ -12,7 +12,7 @@ Un termómetro especializado para panaderos y amantes de la masa madre que muest
 - **Diseño responsive** que funciona en móviles y escritorio
 - **Actualización automática** cada 30 minutos y manual con un clic
 - **Zona óptima claramente marcada** con leyenda que no interfiere con el indicador
-- **Altitud de Monterrey** (540 msnm) en lugar de velocidad del viento
+- **Altitud** (vgr. 540 msnm) en lugar de velocidad del viento
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -26,5 +26,5 @@ Un termómetro especializado para panaderos y amantes de la masa madre que muest
 
 1. Clona este repositorio:
 ```bash
-git clone https://github.com/tu-usuario/termometroregio.git
+git clone https://github.com/Wikibuda/termometroregio.git
 cd termometroregio
